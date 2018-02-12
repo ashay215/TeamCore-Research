@@ -22,23 +22,29 @@ sift = cv2.xfeatures2d.SIFT_create()
 
 pixels = []
 
-# # Now we drawn the gray image and overlay the Key Points (kp)
-# img = cv2.drawKeypoints(gray, kp, None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+# Save the image to a file
+cv2.imwrite('sift_keypoints.jpg',img)
+print("saved")
 
 height, width, depth = img.shape
 for i in range(0, height):
     for j in range(0, (width)):
-        x = img[i,j] 
-        pixels.append(x)
+        pixels.append(img[i,j])
 
 np_pixels = np.array(pixels)
 
 # Get the Key Points from the 'gray' image pixels, this returns a numpy array
 kp = sift.detect(np_pixels, None)
 
+# Now we drawn the gray image and overlay the Key Points (kp)
+img = cv2.drawKeypoints(gray, kp, None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+plt.imshow(img)
+plt.show()
+
 
 kmeans = KMeans(n_clusters=5)
-# kmeans.fit(kp)
+kmeans.fit(kp)
+labels = kmeans.predict(df)
+centroids = kmeans.cluster_centers_
 
-# Save the image to a file
-# cv2.imwrite('sift_keypoints.jpg',img)
+
