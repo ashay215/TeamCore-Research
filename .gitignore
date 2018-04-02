@@ -1,1 +1,9 @@
 1-s2.0-S003132031630348X-main.pdf
+Roads_QENP/
+Water_QENP/
+Roads_MFNP/
+Water_MFNP/
+satellite_imagery/
+*.tif
+filename.jpg
+sift_keypoints.jpg
