@@ -1,1 +1,1 @@
-# TeamCore-Research
+Run detection.py for edge detection of satellite imagery; shape.py to view shape files. 
