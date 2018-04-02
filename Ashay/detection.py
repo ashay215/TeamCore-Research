@@ -23,21 +23,61 @@ for band in range(nB):
 #It's now a 16-bit numpy array. To display with OpenCV, normalize from 0 to 1 by dividing by max in im to get a float64 numpy array (OpenCV will either display uint8 images, 0 to 255, or it will display float64 images, 0 to 1)
 src = im / im.max()
 
-cv2.namedWindow('src1', cv2.WINDOW_NORMAL)
+# cv2.namedWindow('src1', cv2.WINDOW_NORMAL)
 
 
 srccopy = (np.uint8) (src *255) 
-ms = cv2.resize(srccopy, (1500, 800))    
-cv2.imshow('src1', ms)
-cv2.waitKey(0)
+# ms = cv2.resize(srccopy, (1500, 800))    
+# cv2.imshow('src1', ms)
+# cv2.waitKey(0)
+print(srccopy.shape)
+
+ 
+width,height = srccopy.shape[0], srccopy.shape[1]
+image_center = (width/2, height/2)
+rotation_mat = cv2.getRotationMatrix2D(image_center,11.1,1)
+
+# rotation calculates the cos and sin, taking absolutes of those.
+abs_cos = abs(rotation_mat[0,0]) 
+abs_sin = abs(rotation_mat[0,1])
+
+# find the new width and height bounds
+bound_w = int(height * abs_sin + width * abs_cos)
+bound_h = int(height * abs_cos + width * abs_sin)
+
+# subtract old image center (bringing image back to origo) and adding the new image center coordinates
+rotation_mat[0, 2] += bound_w/2 - image_center[0]
+rotation_mat[1, 2] += bound_h/2 - image_center[1]
+
+dst = cv2.warpAffine(srccopy,rotation_mat,(height,width))
+
+# img = cv2.resize(dst, (896,436))
+img = cv2.resize(dst, None, fx=0.1, fy=0.1, interpolation = cv2.INTER_AREA)
+
+cropped = img[74:300, 52:1000]
+# cropped = img[148:600, 104:2000]
+cropped_dst = dst[740:3000, 520:10000]
+# img2 = cv2.resize(srccopy, (1000,500))
+   
+# cv2.imshow('src1', img)
+# cv2.imshow('src2', cropped_dst)
+# cv2.waitKey(0)
 
 #otsu thresholding for water- will choose default pixel threshold
 
 #rotate and crop image- can give opencv points to crop 
 
-# misc.imsave('fileName.jpg', src)
-# image = ndimage.imread('fileName.jpg',0)
-cdst = cv2.Canny(srccopy, 50, 200, None, 3)
+v = np.median(cropped)
+sigma = 0.33
+ 
+# apply automatic Canny edge detection using the computed median
+lower = int(max(0, (1.0 - sigma) * v))
+upper = int(min(255, (1.0 + sigma) * v))
+
+cdst = cv2.Canny(cropped, lower, upper)
+canny = cv2.resize(cdst, (0,0), fx=0.2, fy=0.2, interpolation = cv2.INTER_AREA)
+cv2.imshow('src2', canny)
+cv2.waitKey(0)
 cdstP = np.copy(cdst)
 lines = cv2.HoughLines(cdst, 1, np.pi / 180, 150, None, 0, 0)
 
@@ -63,7 +103,9 @@ if linesP is not None:
         cv2.line(cdstP, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv2.LINE_AA)
 
 cv2.namedWindow('src', cv2.WINDOW_NORMAL)
-cv2.imshow('src', src)
+cv2.imshow('src', cropped)
+cdst_r = cv2.resize(cdst, (0,0), fx=0.2, fy=0.2, interpolation = cv2.INTER_AREA)
+cdstP_r = cv2.resize(cdstP, (0,0), fx=0.2, fy=0.2, interpolation = cv2.INTER_AREA)
 cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
 cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
 
