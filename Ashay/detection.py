@@ -5,7 +5,7 @@ import cv2
 from scipy import ndimage, misc
 import math
 
-filename = 'satellite_imagery/20180206_074602_1033/20180206_074602_1033_3B_AnalyticMS.tif'
+filename = 'satellite_imagery/20180206_074601_1033/20180206_074601_1033_3B_AnalyticMS.tif'
 d = gdal.Open(filename, gdalconst.GA_ReadOnly)
 geoTiffDataType = gdal.GetDataTypeName(d.GetRasterBand(1).DataType)
 nC = d.RasterXSize
@@ -56,9 +56,6 @@ cropped = dst[y_start:y_end, x_start:x_end]
 #otsu thresholding- will choose default pixel threshold
 gray_image = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
 ret, otsu = cv2.threshold(gray_image, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-# cv2.imshow('1', imgf)
-# cv2.imwrite('OTSU-Threshold.jpg',imgf)
-
 
 # apply automatic Canny edge detection using the computed median
 v = np.median(cropped)
@@ -103,11 +100,12 @@ otsu_r = cv2.resize(otsu, (0,0), fx=scale, fy=scale, interpolation = cv2.INTER_A
 cv2.imshow('src', cropped_r)
 cv2.imshow('otsu', otsu_r)
 cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst_r)
-# cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP_r)
+cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP_r)
 
-# cv2.imwrite('OTSU-ThresholdL.jpg',otsu_r)
-# cv2.imwrite('Hough-OTSUL.jpg',cdst_r)
-
-# cv2.imwrite('HOUGH-OTSUL-Full.jpg',cdst)
+cv2.imwrite('Source.jpg', srccopy)
+cv2.imwrite('RotateCrop.jpg', cropped)
+cv2.imwrite('OTSU.jpg',otsu)
+cv2.imwrite('Hough.jpg',cdst)
+cv2.imwrite('HoughP.jpg',cdstP)
 
 cv2.waitKey(0)
